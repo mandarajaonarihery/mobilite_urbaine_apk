@@ -1,0 +1,39 @@
+{
+  "@@locale": "fr",
+  "landingTitle": "Modernisez la Gestion du Transport Urbain",
+
+"landingWelcome": "Une solution complète pour les coopératives, propriétaires et agents municipaux pour une supervision efficace et transparente.",
+
+"landingLogin": "Accéder à la plateforme",
+
+"featuresTitle": "Une solution pour chaque acteur",
+
+"feature1Title": "Gestion Simplifiée pour Coopératives",
+
+"feature1Desc": "Suivez vos véhicules, gérez vos membres et optimisez vos opérations quotidiennes depuis une seule interface.",
+
+"feature2Title": "Supervision pour la Commune",
+
+"feature2Desc": "Accédez à des données fiables, contrôlez les licences et assurez le respect des réglementations pour un transport plus sûr.",
+
+"feature3Title": "Outils pour Agents et Propriétaires",
+
+"feature3Desc": "Facilitez la collecte des paiements, la gestion des parkings et la communication entre tous les acteurs du secteur.",
+"seeMap": "Explorer la carte",
+
+"feature4Title": "Carte Interactive en Temps Réel",
+
+"feature4Desc": "Visualisez les itinéraires, localisez les véhicules et suivez le trafic en direct sur une carte facile à utiliser.",
+
+    "loginWelcome": "Bienvenue",
+    "loginSubtitle": "Connectez-vous à votre espace mobilité",
+    "emailLabel": "Adresse email",
+    "emailValidation": "Veuillez entrer votre email",
+    "passwordLabel": "Mot de passe",
+    "passwordValidation": "Veuillez entrer votre mot de passe",
+    "loginButton": "Se connecter",
+    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+    "error": "Erreur",
+    "demoInfo": "Mode démo : utilisez n'importe quel email et mot de passe"
+
+}
