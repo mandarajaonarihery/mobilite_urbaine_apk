@@ -129,44 +129,45 @@ class _ModernLoginScreenState extends State<ModernLoginScreen>
   }
 
   // MODIFIÉ ICI : Ce widget remplace _buildTopHeader par la version que vous avez suggérée
-  Widget _buildHeader(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final localeProvider = Provider.of<LocaleProvider>(context);
+ Widget _buildHeader(BuildContext context) {
+  return Consumer2<ThemeProvider, LocaleProvider>(
+    builder: (context, themeProvider, localeProvider, child) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Image.asset('assets/images/app_logo.png', height: 45, errorBuilder: (context, error, stackTrace) => const Icon(Icons.apps, size: 35)),
+                const SizedBox(width: 15),
+                Image.asset('assets/images/pnud.png', height: 45, errorBuilder: (context, error, stackTrace) => const Icon(Icons.public, size: 35)),
+              ],
+            ),
+            Row(
+              children: [
+                PopupMenuButton<Locale>(
+                  icon: const Icon(Icons.language),
+                  onSelected: (Locale locale) => localeProvider.setLocale(locale),
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(value: Locale('fr'), child: Text('Français')),
+                    PopupMenuItem(value: Locale('mg'), child: Text('Malagasy')),
+                  ],
+                ),
+                IconButton(
+                  icon: Icon(themeProvider.themeMode == ThemeMode.dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined),
+                  onPressed: () => themeProvider.toggleTheme(),
+                  tooltip: themeProvider.themeMode == ThemeMode.dark ? 'Mode clair' : 'Mode sombre',
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              // CHEMIN CORRIGÉ ICI
-              Image.asset('assets/images/app_logo.png', height: 45, errorBuilder: (context, error, stackTrace) => const Icon(Icons.apps, size: 35)),
-              const SizedBox(width: 15),
-              Image.asset('assets/images/pnud.png', height: 45, errorBuilder: (context, error, stackTrace) => const Icon(Icons.public, size: 35)),
-            ],
-          ),
-          Row(
-            children: [
-              PopupMenuButton<Locale>(
-                icon: const Icon(Icons.language),
-                onSelected: (Locale locale) => localeProvider.setLocale(locale),
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: Locale('fr'), child: Text('Français')),
-                  const PopupMenuItem(value: Locale('mg'), child: Text('Malagasy')),
-                ],
-              ),
-              IconButton(
-                icon: Icon(themeProvider.themeMode == ThemeMode.dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined),
-                onPressed: () => themeProvider.toggleTheme(),
-                tooltip: themeProvider.themeMode == ThemeMode.dark ? 'Mode clair' : 'Mode sombre',
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
   
    Widget _buildMinimalBackground(bool isDarkMode, Color primaryColor) {
     return Container(

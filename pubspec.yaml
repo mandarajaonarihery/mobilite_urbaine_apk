@@ -9,27 +9,34 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:        # ✅ nécessaire pour la traduction
+  flutter_localizations:
     sdk: flutter
-  intl: ^0.20.2                 # ✅ gestion des formats (date, nombres, etc.)
-  provider: ^6.1.2              # State management
-  shared_preferences: ^2.2.3    # Stockage local (mode dark, langue, etc.)
-  go_router: ^16.2.0            # Navigation
-  http: ^1.2.1                  # Requêtes API
-  jwt_decoder: ^2.0.1           # Décodage JWT
-  image_picker: ^1.2.0          # Sélection d’images
-  # easy_localization: ^3.0.5     # ✅ Internationalisation simplifiée
+  intl: ^0.20.2
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  go_router: ^16.2.0
+  http: ^1.2.1
+  jwt_decoder: ^2.0.1
+  image_picker: ^1.2.0
   file_selector: ^0.9.1
-  flutter_map: ^8.2.1       # <-- mise à jour
-  latlong2: ^0.9.1            # ✅ Gestion des coordonnées GPS
+  flutter_map: ^8.2.1
+  latlong2: ^0.9.1
   geolocator: ^12.0.0
   qr_code_scanner_plus: ^2.0.12
-
+  google_fonts: ^6.3.2
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1   # ✅ Ajouté ici
+
+# Configuration du package pour générer les icônes
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/app_logo.png"  # ✅ ton logo principal
 
 flutter:
   uses-material-design: true
@@ -37,8 +44,7 @@ flutter:
 
   assets:
     - assets/images/pnud.png
-    - assets/images/app_logo.png  # Nouveau logo app
+    - assets/images/app_logo.png
     - assets/images/scan.png
     - assets/images/user.jpg
     - assets/images/
-    # Ajouter d'autres images si nécessaire

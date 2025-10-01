@@ -1,3 +1,4 @@
+import 'package:all_pnud/services/file_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -224,7 +225,6 @@ class _DemandeVehiculeScreenState extends State<DemandeVehiculeScreen> {
           filename: file.name);
     }
   }
-
   Future<void> _submitDemande() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
@@ -244,11 +244,31 @@ class _DemandeVehiculeScreenState extends State<DemandeVehiculeScreen> {
       orElse: () => TransportType(id: 1, name: 'Erreur'),
     );
 
+    // ✅ Mapping pour correspondre aux noms attendus par l’API
+    final Map<String, String> apiFieldMapping = {
+      "Assurance recto": "assurance",
+      "Assurance verso": "assurance_verso",
+      "Carte grise recto": "cartegrise",
+      "Carte grise verso": "cartegrise_verso",
+      "Visite technique recto": "visite_technique",
+      "Visite technique verso": "visite_technique_verso",
+      "Demande manuscrite recto": "demandemanuscrit",
+      "Demande manuscrite verso": "demandemanuscrit_verso",
+      "Patente recto": "patente",
+      "Patente verso": "patente_verso",
+      "Facture moto recto": "facture_moto",
+      "Facture moto verso": "facture_moto_verso",
+    };
+
     List<http.MultipartFile> multipartFiles = [];
     for (var entry in selectedFiles.entries) {
       if (entry.value != null) {
-        multipartFiles.add(await _prepareMultipartFile(
-            entry.key.toLowerCase().replaceAll(' ', '_'), entry.value));
+        // On applique le mapping sinon fallback à la transformation par défaut
+        final fieldName = apiFieldMapping[entry.key] ??
+            entry.key.toLowerCase().replaceAll(' ', '_');
+        multipartFiles.add(
+          await _prepareMultipartFile(fieldName, entry.value),
+        );
       }
     }
 
@@ -313,7 +333,7 @@ class _DemandeVehiculeScreenState extends State<DemandeVehiculeScreen> {
           await affectationService.createAffectation(
             idChauffeur: _selectedChauffeur!.id,
             immatriculation: _selectedImmatriculation!,
-            idCooperative: _selectedCooperative!.id,
+            idCooperative: _selectedCooperative!.id.toString(),
           );
         }
       }
@@ -754,6 +774,7 @@ class _DemandeVehiculeScreenState extends State<DemandeVehiculeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -1081,9 +1102,9 @@ class _DemandeVehiculeScreenState extends State<DemandeVehiculeScreen> {
                               CircleAvatar(
                                 radius: 30,
                                 backgroundColor: AppColors.success.withOpacity(0.2),
-                                backgroundImage: _selectedChauffeur!.photo != null
-                                    ? NetworkImage(_selectedChauffeur!.photo!)
-                                    : null,
+                              backgroundImage: _selectedChauffeur?.photo != null
+                              ? NetworkImage(FileService.getPreviewUrl(_selectedChauffeur!.photo!))
+                              : null,
                                 child: _selectedChauffeur!.photo == null
                                     ? const Icon(Icons.person, color: AppColors.success, size: 30)
                                     : null,

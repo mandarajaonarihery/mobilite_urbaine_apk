@@ -26,7 +26,7 @@ class AffectationService {
     };
   }
 
-  Future<List<Affectation>> getAffectationsByCooperative(int cooperativeId) async {
+  Future<List<Affectation>> getAffectationsByCooperative(String cooperativeId) async {
     final headers = await _getHeaders();
     if (headers == null) return [];
 
@@ -78,7 +78,7 @@ class AffectationService {
   Future<bool> createAffectation({
     int? idChauffeur,
     required String immatriculation,
-    required int idCooperative,
+    required String idCooperative,
   }) async {
     final headers = await _getHeaders();
     if (headers == null) return false;

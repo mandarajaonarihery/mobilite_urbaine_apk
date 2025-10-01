@@ -1,9 +1,13 @@
+import 'package:all_pnud/screen/mobilite_urbaine/chauffeur/chauffeur_dash.dart';
+import 'package:all_pnud/screen/mobilite_urbaine/chauffeur/chauffeur_register.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // Providers
 import 'package:all_pnud/providers/auth_provider.dart';
+import 'package:all_pnud/providers/theme_provider.dart';
+import 'package:all_pnud/providers/locale_provider.dart';
 
 // Pages / Screens
 import 'package:all_pnud/pages/login_page.dart';
@@ -12,7 +16,6 @@ import 'package:all_pnud/screen/settings_page.dart';
 import 'package:all_pnud/screen/map_screen.dart';
 import 'package:all_pnud/screen/home/dashboard_screen.dart';
 import 'package:all_pnud/screen/mobilite_urbaine/mobilite_urbaine_screen.dart';
-
 
 // Mobilité urbaine
 import 'package:all_pnud/screen/mobilite_urbaine/cooperative/cooperative_screen.dart';
@@ -35,31 +38,30 @@ import 'package:all_pnud/models/affectation.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
-  static GoRouter getRouter(BuildContext context) {
+  static GoRouter getRouter({
+    required ThemeProvider themeProvider,
+    required LocaleProvider localeProvider,
+  }) {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/',
-    redirect: (context, state) {
-  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-  final isLoggedIn = authProvider.isLoggedIn;
-  final isLoggingIn = state.uri.path == '/login';
-  final isOnLanding = state.uri.path == '/';
-  
-  // 👇 1. On ajoute une variable pour vérifier si on est sur la carte
-  final isOnMap = state.uri.path == '/map';
+      redirect: (context, state) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final isLoggedIn = authProvider.isLoggedIn;
+        final isLoggingIn = state.uri.path == '/login';
+        final isOnLanding = state.uri.path == '/';
+        final isOnMap = state.uri.path == '/map';
 
-  // 👇 2. On ajoute la condition !isOnMap à la règle de protection
-  if (!isLoggedIn && !isLoggingIn && !isOnLanding && !isOnMap) return '/';
-  
-  if (isLoggedIn && (isLoggingIn || isOnLanding)) return '/mobilite_urbaine';
-  
-  return null;
-},
+        if (!isLoggedIn && !isLoggingIn && !isOnLanding && !isOnMap) return '/';
+        if (isLoggedIn && (isLoggingIn || isOnLanding)) return '/mobilite_urbaine';
+
+        return null;
+      },
       routes: [
         GoRoute(
           path: '/',
           name: 'landing',
-        builder: (context, state) => LandingPage(), // 🔄 plus de const
+          builder: (context, state) => LandingPage(),
         ),
         GoRoute(
           path: '/login',
@@ -81,20 +83,25 @@ class AppRouter {
           name: 'settings',
           builder: (context, state) => const SettingsPage(),
         ),
-
-        // === Mobilité urbaine ===
         GoRoute(
           path: '/mobilite_urbaine',
           name: 'mobilite_urbaine',
           builder: (context, state) => const MobiliteUrbaineScreen(),
           routes: [
-            GoRoute(
-              path: 'agents',
-              name: 'agents',
-              builder: (context, state) => const AgentsScreen(),
-            ),
+             GoRoute(
+      path: 'chauffeur/register',
+      name: 'chauffeur_register',
+      builder: (context, state) => const ChauffeurRegisterScreen(),
+    ),
+   GoRoute(
+  path: 'chauffeur/dashboard',
+  name: 'chauffeur_dashboard',
+  builder: (context, state) {
+    final chauffeurData = state.extra as Map<String, dynamic>;
+    return ChauffeurDashboardScreen(chauffeurData: chauffeurData);
+  },
+),
 
-            // Proprietaire
             GoRoute(
               path: 'proprietaire/dashboard',
               name: 'proprietaire_dashboard',
@@ -126,8 +133,6 @@ class AppRouter {
                 return VehiculeDetailScreen(vehicule: vehicule);
               },
             ),
-
-            // Paiement
             GoRoute(
               path: 'page_paiement',
               name: 'page_paiement',
@@ -143,20 +148,7 @@ class AppRouter {
                 );
               },
             ),
-            
-            GoRoute(
-  path: 'agent/routiere',
-  name: 'agent_routiere_dashboard',
-  builder: (context, state) {
-    // Récupérer le token depuis l'AuthProvider
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final token = authProvider.token ?? '';
-    return HomeRoute(accessToken: token);
-  },
-),
-
-
-            // Cooperative
+           
             GoRoute(
               path: 'cooperative',
               name: 'cooperative',
@@ -210,9 +202,6 @@ class AppRouter {
             ),
           ],
         ),
-
-       
-       
       ],
       errorBuilder: (context, state) =>
           const Scaffold(body: Center(child: Text('Erreur: Page introuvable'))),

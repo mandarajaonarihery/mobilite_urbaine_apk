@@ -103,7 +103,7 @@ class LigneService {
   //   final List parsed = json.decode(jsonData);
   //   return parsed.map((e) => Ligne.fromJson(e)).toList();
   // }
-  Future<List<Ligne>> getLignesByCooperative(int cooperativeId,
+  Future<List<Ligne>> getLignesByCooperative(String cooperativeId,
     {int page = 1, int limit = 10}) async {
   final url = Uri.parse(
     '$baseUrl/lignes/cooperative/$cooperativeId?page=$page&limit=$limit',

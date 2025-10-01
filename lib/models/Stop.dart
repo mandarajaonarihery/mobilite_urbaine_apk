@@ -4,7 +4,7 @@ class Stop {
   final List<double> coordinates;
   final String description;
   final String ligneId;
-  final int municipalityId;
+  final String municipalityId;
   final String createdAt;
   final String updatedAt;
 

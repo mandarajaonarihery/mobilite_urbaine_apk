@@ -6,7 +6,7 @@ class Licence {
   final String? statusApprobation;
   final String? statusPaiement; // <-- ajouter ce champ
   final String? eligibilite;
-  final int? municipalityId;
+  final String? municipalityId;
 
   Licence({
     this.numLicence,
@@ -27,7 +27,7 @@ class Licence {
         statusApprobation: json['status_approbation'] as String?,
         statusPaiement: json['status_paiement'] as String?, // <-- ajouté
         eligibilite: json['eligibilite'] as String?,
-        municipalityId: json['municipality_id'] as int?,
+        municipalityId: json['municipality_id'] as String?,
       );
 
   Map<String, dynamic> toJson() => {

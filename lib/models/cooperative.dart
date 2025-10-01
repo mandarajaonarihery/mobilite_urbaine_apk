@@ -1,7 +1,7 @@
 class Cooperative {
   final int id;
   final String? nameCooperative;
-  final int? municipalityId;
+  final String? municipalityId;
   final String? nif;
   final String? numCnaps;
   final String? status;
@@ -29,7 +29,7 @@ class Cooperative {
     return Cooperative(
       id: json['id'] as int,
       nameCooperative: json['name_cooperative'] as String?,
-      municipalityId: json['municipality_id'] as int?,
+      municipalityId: json['municipality_id'] as String?,
       nif: json['nif'] as String?,
       numCnaps: json['num_cnaps'] as String?,
       status: json['status'] as String?,

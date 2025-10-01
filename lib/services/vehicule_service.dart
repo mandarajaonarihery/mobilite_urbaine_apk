@@ -67,10 +67,20 @@ Future<bool> createVehiculeWithDocs({
 
   // Ajouter les fichiers déjà préparés
   request.files.addAll(files);
+ // 🟢 LOG des données envoyées
+  debugPrint("===== 📤 DONNÉES FORM-DATA =====");
+  request.fields.forEach((key, value) {
+    debugPrint("Champ: $key = $value");
+  });
+  for (var f in request.files) {
+    debugPrint("Fichier: ${f.field} -> ${f.filename} (${f.length} bytes)");
+  }
+  debugPrint("================================");
 
   try {
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
+    debugPrint("🔴 Réponse API: ${response.statusCode} - ${response.body}");
     return response.statusCode == 201;
   } catch (e) {
     debugPrint("Erreur réseau: $e");

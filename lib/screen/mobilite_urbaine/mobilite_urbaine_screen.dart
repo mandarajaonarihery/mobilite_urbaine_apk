@@ -1,5 +1,6 @@
 // lib/screen/mobilite_urbaine/mobilite_urbaine_screen.dart
 
+import 'package:all_pnud/services/chauffeur_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,22 +17,249 @@ class MobiliteUrbaineScreen extends StatefulWidget {
 
 class _MobiliteUrbaineScreenState extends State<MobiliteUrbaineScreen>
     with TickerProviderStateMixin {
-      void _navigateToAgentSection() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+void _navigateToCooperativeSection() async {
+    // Dialogue de loading moderne
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: cardBackground,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue, Colors.blue.withOpacity(0.7)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 3,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Chargement de votre espace...",
+                style: TextStyle(
+                  color: darkText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
-    if (authProvider.isAgentRoutiere) {
-      // agent routière
-      context.goNamed('agent_routiere_dashboard');
-    } else if (authProvider.isAgentParking) {
-      // agent parking
-      context.goNamed('agent_parking_dashboard');
-    } else {
-      // aucun rôle reconnu
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Accès refusé : aucun rôle valide trouvé.")),
-      );
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final citizenId = authProvider.decodedToken?['id_citizen'];
+      final token = authProvider.token;
+
+      if (citizenId != null && token != null) {
+       final cooperative = await _cooperativeService.getCooperativeByCitizenId(citizenId);
+        
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+          
+          if (cooperative != null) {
+            if (cooperative.status == 'VALIDE') {
+              context.goNamed('cooperative',extra: {'cooperativeId': cooperative.id});
+            } else if (cooperative.status == 'EN_ATTENTE') {
+              context.goNamed('cooperative_pending',extra: cooperative.toJson(),); // ou la Map<String,dynamic> correspondante);
+
+            } else {
+              context.goNamed('cooperative_rejected');
+            }
+          } else {
+            context.goNamed('cooperative_register');
+          }
+        }
+      } else {
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+          context.goNamed('dashboard');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        context.goNamed('dashboard');
+      }
     }
   }
+
+  void _navigateToProprietaireSection() async {
+    // Dialogue de loading moderne
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: cardBackground,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [greenAccent, greenAccent.withOpacity(0.7)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  strokeWidth: 3,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Chargement de votre espace...",
+                style: TextStyle(
+                  color: darkText,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final citizenId = authProvider.decodedToken?['id_citizen'];
+      final token = authProvider.token;
+
+      if (citizenId != null && token != null) {
+        final vehicules = await _vehiculeService.getVehiculesByCitizenId(citizenId, token);
+        print('citizenId: $citizenId, token: $token, vehicules: $vehicules');
+
+
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+          if (vehicules.isNotEmpty) {
+            context.goNamed('proprietaire_dashboard');
+          } else {
+            context.goNamed('proprietaire_register_vehicule');
+          }
+        }
+      } else {
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop();
+          context.goNamed('dashboard');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        context.goNamed('dashboard');
+      }
+    }
+  }
+
+
+void _navigateToChauffeurSection() async {
+  // Boîte de chargement
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: cardBackground,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text("Vérification de votre profil..."),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  try {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final citizenId = authProvider.decodedToken?['id_citizen'];
+    final token = authProvider.token;
+
+    if (citizenId != null && token != null) {
+      final chauffeurService = ChauffeurService();
+      final chauffeur = await chauffeurService.getChauffeurByCitizenIdEnriched(citizenId);
+
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+
+        if (chauffeur != null) {
+          // ✅ Chauffeur existe → dashboard
+          context.goNamed('chauffeur_dashboard', extra: {'chauffeur': chauffeur});
+        } else {
+          // 🚀 Chauffeur n’existe pas → enregistrement
+          context.goNamed('chauffeur_register');
+        }
+      }
+    } else {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        context.goNamed('dashboard');
+      }
+    }
+  } catch (e) {
+    if (mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+      context.goNamed('dashboard');
+    }
+  }
+}
+
+
+      
   final CooperativeService _cooperativeService = CooperativeService();
   final VehiculeService _vehiculeService = VehiculeService();
 
@@ -720,24 +948,22 @@ class _MobiliteUrbaineScreenState extends State<MobiliteUrbaineScreen>
                     delayIndex: 1,
                   ),
                   
-                  _buildFuturisticCard(
-                    title: "Espace Agents",
-                    description: "Contrôlez les véhicules, vérifiez les licences et gérez les infractions sur le terrain.",
-                    icon: Icons.local_police,
-                    features: [
-                      "Contrôle des véhicules",
-                      "Vérification des licences",
-                      "Gestion des infractions",
-                      "Rapports de terrain",
-                    ],
-                    imageUrl: "https://images.unsplash.com/photo-1591718711595-79414fb0e066?w=400&h=120&fit=crop",
-                    accentColor: Colors.orange,
-                    // onTap: () => context.go('/mobilite_urbaine/agents'),
-                    onTap: _navigateToAgentSection,
+                                _buildFuturisticCard(
+                  title: "Espace Chauffeur",
+                  description: "Accédez à vos courses, suivez vos revenus et gérez vos disponibilités.",
+                  icon: Icons.drive_eta,
+                  features: [
+                    "Gestion des courses",
+                    "Suivi des revenus",
+                    "Historique des trajets",
+                    "Gestion des disponibilités",
+                  ],
+                  imageUrl: "https://images.unsplash.com/photo-1517142089942-ba376ce32a2e?w=400&h=120&fit=crop",
+                  accentColor: Colors.redAccent,
+                  onTap: _navigateToChauffeurSection,
+                  delayIndex: 2,
+                ),
 
-                    delayIndex: 2,
-                  ),
-                  
                   const SizedBox(height: 32),
                 ],
               ),
@@ -748,177 +974,5 @@ class _MobiliteUrbaineScreenState extends State<MobiliteUrbaineScreen>
     );
   }
 
-  void _navigateToCooperativeSection() async {
-    // Dialogue de loading moderne
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: cardBackground,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue, Colors.blue.withOpacity(0.7)],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 3,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "Chargement de votre espace...",
-                style: TextStyle(
-                  color: darkText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final citizenId = authProvider.decodedToken?['id_citizen'];
-      final token = authProvider.token;
-
-      if (citizenId != null && token != null) {
-       final cooperative = await _cooperativeService.getCooperativeByCitizenId(citizenId);
-        
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-          
-          if (cooperative != null) {
-            if (cooperative.status == 'VALIDE') {
-              context.goNamed('cooperative',extra: {'cooperativeId': cooperative.id});
-            } else if (cooperative.status == 'EN_ATTENTE') {
-              context.goNamed('cooperative_pending',extra: cooperative.toJson(),); // ou la Map<String,dynamic> correspondante);
-
-            } else {
-              context.goNamed('cooperative_rejected');
-            }
-          } else {
-            context.goNamed('cooperative_register');
-          }
-        }
-      } else {
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-          context.goNamed('dashboard');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-        context.goNamed('dashboard');
-      }
-    }
-  }
-
-  void _navigateToProprietaireSection() async {
-    // Dialogue de loading moderne
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: cardBackground,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [greenAccent, greenAccent.withOpacity(0.7)],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  strokeWidth: 3,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "Chargement de votre espace...",
-                style: TextStyle(
-                  color: darkText,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final citizenId = authProvider.decodedToken?['id_citizen'];
-      final token = authProvider.token;
-
-      if (citizenId != null && token != null) {
-        final vehicules = await _vehiculeService.getVehiculesByCitizenId(citizenId, token);
-        print('citizenId: $citizenId, token: $token, vehicules: $vehicules');
-
-
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-          if (vehicules.isNotEmpty) {
-            context.goNamed('proprietaire_dashboard');
-          } else {
-            context.goNamed('proprietaire_register_vehicule');
-          }
-        }
-      } else {
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-          context.goNamed('dashboard');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop();
-        context.goNamed('dashboard');
-      }
-    }
-  }
+  
 }

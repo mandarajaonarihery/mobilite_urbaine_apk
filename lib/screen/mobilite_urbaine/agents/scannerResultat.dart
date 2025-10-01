@@ -131,7 +131,7 @@ class _ScannerResultatState extends State<ScannerResultat> {
           montantAmende: 30000.0, // double
           statut: "NON_PAYEE",
           dateInfraction: now,
-          municipalityId: municipalityId,
+          municipalityId: municipalityId?.toString(),
         );
 
         String? error = await InfractionService.enregistrerInfraction(infraction);
@@ -180,7 +180,7 @@ class _ScannerResultatState extends State<ScannerResultat> {
           montantAmende: 30000.0, // double
           statut: "NON_PAYEE",
           dateInfraction: now,
-          municipalityId: municipalityId,
+          municipalityId: municipalityId.toString(),
         );
 
         String? error = await InfractionService.enregistrerInfraction(infraction);

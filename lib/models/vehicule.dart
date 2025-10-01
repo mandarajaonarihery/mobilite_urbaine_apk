@@ -9,7 +9,7 @@ class Vehicule {
   final String? immatriculation;
   final String? idCitizen;
   final int? typetransportId;
-  final int? municipalityId;
+  final String? municipalityId;
   final String? emailProprietaire;
   final String? status;
   final String? numLicence;
@@ -56,7 +56,7 @@ class Vehicule {
         dateDescente: json['date_descente'] as String?,
       typetransportId: json['typetransport_id'] as int?,
       statusDateDescente: json['status_date_descente'] as String?,
-      municipalityId: json['municipality_id'] as int?,
+      municipalityId: json['municipality_id'] as String?,
       emailProprietaire: json['email_prop'] as String?,
       motifRefus: json['motif_refus'] as String?, 
       status: json['status'] as String?,

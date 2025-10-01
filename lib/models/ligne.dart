@@ -5,7 +5,7 @@ import 'Stop.dart';
 class Ligne {
   final int id;
   final String nom;
-  final int municipalityId;
+  final String municipalityId;
   final String couleur;
   final List<List<double>> trace;
   final int cooperativeId;

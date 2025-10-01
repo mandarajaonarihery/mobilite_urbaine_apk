@@ -8,7 +8,7 @@ class Infraction {
   final String statut;
   final DateTime dateInfraction;
   final bool? payee;
-  final int? municipalityId; // 🔹 Ajouté
+  final String? municipalityId; // 🔹 Ajouté
 
   Infraction({
     required this.agentId,

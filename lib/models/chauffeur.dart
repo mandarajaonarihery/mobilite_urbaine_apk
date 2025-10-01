@@ -3,7 +3,7 @@ class Chauffeur {
   final String? numPhonChauffeur;
   final String? numPermisChauffeur;
   final String? categoriPermis;
-  final int? municipalityId;
+  final String? municipalityId;
   final String? cityzenId;
 
   // Données citoyen
@@ -30,30 +30,50 @@ class Chauffeur {
     this.adresse,
     this.permisImage,
   });
+// Dans votre fichier models/chauffeur.dart
 
-  factory Chauffeur.fromJson(Map<String, dynamic> json) {
-    // si l’API renvoie citizen imbriqué
-    final citizen = json['citizen'] ?? {};
+factory Chauffeur.fromJson(Map<String, dynamic> json) {
+  final citizen = json['citizen'] ?? {};
 
-    return Chauffeur(
-      id: json['id'],
-      numPhonChauffeur: json['numPhon_chauffeur'],
-      numPermisChauffeur: json['numPermis_chauffeur'],
-      categoriPermis: json['categori_permis'],
-      municipalityId: json['municipality_id'],
-      cityzenId: json['cityzen_id'],
+  // --- Début de la logique pour enlever la base de l'URL ---
+  final String? fullPhotoUrl = citizen['photo_chauffeur'];
+  String? photoFilename; // Variable pour stocker le résultat
 
-      // alias
-      nom: citizen['nom_chauffeur'] ?? json['nom_chauffeur'],
-      prenom: citizen['prenom_chauffeur'] ?? json['prenom_chauffeur'],
-      cin: citizen['carte_identite_nationnal']?.toString() ??
-          json['carte_identite_nationnal']?.toString(),
-      photo: citizen['photo_chauffeur'] ?? json['photo_chauffeur'],
-      adresse: citizen['adresse'] ?? json['adresse'],
-      permisImage: json['permis_image'], // permis image direct
-    );
+  if (fullPhotoUrl != null) {
+    const String baseUrlToRemove = 'https://gateway.tsirylab.com/serviceupload/file/';
+    
+    if (fullPhotoUrl.startsWith(baseUrlToRemove)) {
+      // Si l'URL commence par la base, on la supprime
+      photoFilename = fullPhotoUrl.replaceFirst(baseUrlToRemove, '');
+    } else {
+      // Sinon, on garde l'URL telle quelle (sécurité)
+      photoFilename = fullPhotoUrl;
+    }
   }
+  // --- Fin de la logique ---
 
+  return Chauffeur(
+    id: json['id'] != null ? int.tryParse(json['id'].toString()) : null,
+    numPhonChauffeur: json['numPhon_chauffeur']?.toString(),
+    numPermisChauffeur: json['numPermis_chauffeur']?.toString(),
+    categoriPermis: json['categori_permis']?.toString(),
+   municipalityId: json['municipality_id']?.toString(),
+
+    cityzenId: json['cityzen_id']?.toString(),
+
+    // alias
+    nom: citizen['nom_chauffeur'] ?? json['nom_chauffeur'],
+    prenom: citizen['prenom_chauffeur'] ?? json['prenom_chauffeur'],
+    cin: citizen['carte_identite_nationnal']?.toString() ??
+        json['carte_identite_nationnal']?.toString(),
+    
+    // On utilise notre variable qui contient maintenant que le nom du fichier
+    photo: photoFilename, 
+    
+    adresse: citizen['adresse'] ?? json['adresse'],
+    permisImage: json['permis_image'],
+  );
+}
   Map<String, dynamic> toJson() {
     return {
       'id': id,

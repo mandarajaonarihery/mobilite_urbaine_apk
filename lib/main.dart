@@ -30,31 +30,35 @@ class MyAppStarter extends StatelessWidget {
     );
   }
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final localeProvider = Provider.of<LocaleProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final GoRouter router = AppRouter.getRouter(context);
+    return Consumer2<ThemeProvider, LocaleProvider>(
+      builder: (context, themeProvider, localeProvider, child) {
+        // 🔹 Passe les providers au router
+        final GoRouter router = AppRouter.getRouter(
+          themeProvider: themeProvider,
+          localeProvider: localeProvider,
+        );
 
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      routerConfig: router,
-      title: 'Portail PNUD',
-      theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme,
-      themeMode: themeProvider.themeMode,
-      locale: localeProvider.locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      themeAnimationDuration: Duration.zero,
-      themeAnimationCurve: Curves.linear,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      builder: (context, child) {
-        // Affiche le splash / onboarding avant le router principal
-        return  SplashOrOnboardingWrapper(child: child);
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          routerConfig: router,
+          title: 'Portail PNUD',
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          themeMode: themeProvider.themeMode,
+          locale: localeProvider.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          themeAnimationDuration: Duration.zero,
+          themeAnimationCurve: Curves.linear,
+          builder: (context, child) {
+            return SplashOrOnboardingWrapper(child: child);
+          },
+        );
       },
     );
   }
